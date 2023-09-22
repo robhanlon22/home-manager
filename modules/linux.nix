@@ -5,43 +5,55 @@
     let
       nixGL = import <nixgl> { };
       nixGLWrap = pkg:
-        pkg.overrideAttrs (old: {
+        let
+          bin = "${pkg}/bin";
+          executables = builtins.attrNames (builtins.readDir bin);
+        in
+        pkgs.buildEnv {
           name = "nixGL-${pkg.name}";
-          buildCommand = ''
+          paths = map
+            (name: pkgs.writeShellScriptBin name ''
+              exec -a "$0" ${nixGL.auto.nixGLDefault}/bin/nixGL ${bin}/${name} "$@"
+            '')
+            executables;
+        };
+      kittyPkg =
+        let
+          wrapped = nixGLWrap pkgs.kitty;
+          fixedApps = pkgs.runCommand "fixed-kitty" { } ''
             set -eo pipefail
 
-            ${
-            # Heavily inspired by https://stackoverflow.com/a/68523368/6259505
-            pkgs.lib.concatStringsSep "\n" (map (outputName: ''
-              echo "Copying output ${outputName}"
-              set -x
-              cp -rs --no-preserve=mode "${pkg.${outputName}}" "''$${outputName}"
-              set +x
-            '') (old.outputs or [ "out" ]))}
+            mkdir -p "$out/share/applications"
 
-            rm -rf $out/bin/*
-            shopt -s nullglob # Prevent loop from running if no files
-            for file in ${pkg.out}/bin/*; do
-              echo "#!${pkgs.bash}/bin/bash" > "$out/bin/$(basename $file)"
-              echo "exec -a \"\$0\" ${nixGL.auto.nixGLDefault}/bin/nixGL $file \"\$@\"" >> "$out/bin/$(basename $file)"
-              chmod +x "$out/bin/$(basename $file)"
+            shopt -s nullglob
+            for file in "${pkgs.kitty}"/share/applications/*; do
+              app="$out/share/applications/$(basename "$file")"
+              cp "$file" "$app"
+              sed -i "s|Icon=kitty|Icon=${pkgs.kitty}/share/icons/hicolor/256x256/apps/kitty.png|g" "$app"
+              sed -i "s|Exec=kitty|Exec=${wrapped}/bin/kitty|g" "$app"
             done
-            shopt -u nullglob # Revert nullglob back to its normal default state
+            shopt -u nullglob
           '';
-        });
+        in
+        pkgs.buildEnv {
+          name = "final-kitty";
+          paths = [ wrapped fixedApps ];
+        };
     in
     {
       home.packages = [
         pkgs.wl-clipboard
         pkgs.wl-clipboard-x11
         pkgs.gcc
-        (pkgs.writeScriptBin "desktop.sh" (builtins.readFile ../bin/desktop.sh))
-        (pkgs.writeScriptBin "shadow.sh" (builtins.readFile ../bin/shadow.sh))
       ];
 
       targets.genericLinux.enable = true;
 
-      programs.kitty.package = nixGLWrap pkgs.kitty;
+      programs.kitty.package = kittyPkg;
+
+      programs.bash.enable = true;
+
+      xdg.mime.enable = true;
     }
   );
 }

@@ -4,7 +4,7 @@ let
   zshCustom = ".oh-my-zsh/custom";
 in
 {
-  imports = [ ./modules/darwin.nix ./modules/linux.nix ];
+  imports = [ ./modules/darwin.nix ./modules/linux.nix ./modules/steamos.nix ];
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -130,7 +130,6 @@ in
   };
 
   programs.git.enable = true;
-  programs.bash.enable = true;
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

@@ -65,7 +65,7 @@
         lastAppsFile = "${config.xdg.stateHome}/nix/linked-apps.txt";
         lastApps =
           if builtins.pathExists lastAppsFile then
-            builtins.readFile lastAppsFile
+            lib.strings.fileContents lastAppsFile
           else
             "";
         appsPath = "${config.home.homeDirectory}/Applications/Nix";
