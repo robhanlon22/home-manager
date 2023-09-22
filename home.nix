@@ -94,7 +94,10 @@ in
     };
   };
 
-  programs.zoxide.enable = true;
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 
   programs.rbenv = {
     enable = true;
@@ -130,6 +133,8 @@ in
   };
 
   programs.git.enable = true;
+
+  programs.librewolf.enable = true;
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
