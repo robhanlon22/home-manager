@@ -3,6 +3,10 @@
 let
   username = builtins.getEnv "USER";
   homeDirectory = builtins.getEnv "HOME";
+  hostPlatform = pkgs.stdenv.hostPlatform;
+  isDarwin = hostPlatform.isDarwin;
+  isLinux = hostPlatform.isLinux;
+  zshCustom = ".oh-my-zsh/custom";
 in
   {
     # Home Manager needs a bit of information about you and the paths it should
@@ -38,14 +42,19 @@ in
       # (pkgs.writeShellScriptBin "my-hello" ''
       #   echo "Hello, ${config.home.username}!"
       # '')
-
       pkgs.curlFull
       pkgs.fd
 
       # LSP
       pkgs.lua-language-server
       pkgs.nil
-    ];
+    ] ++ (if isLinux then
+            [
+              (pkgs.writeShellScriptBin "desktop.sh" (builtins.readFile bin/desktop.sh))
+              (pkgs.writeShellScriptBin "shadow.sh" (builtins.readFile bin/shadow.sh))
+            ]
+          else 
+            []);
 
     # Home Manager is pretty good at managing dotfiles. The primary way to manage
     # plain files is through 'home.file'.
@@ -60,7 +69,7 @@ in
       #   org.gradle.console=verbose
       #   org.gradle.daemon.idletimeout=3600000
       # '';
-      ".oh-my-zsh/custom/themes/powerlevel10k".source = pkgs.fetchFromGitHub {
+      "${zshCustom}/themes/powerlevel10k".source = pkgs.fetchFromGitHub {
         owner = "romkatv";
         repo = "powerlevel10k";
         rev = "refs/tags/v1.19.0";
@@ -81,8 +90,17 @@ in
     #
     # if you don't want to manage your shell through Home Manager.
     home.sessionVariables = {
-      ZSH_CUSTOM = ".oh-my-zsh/custom";
+      ZSH_CUSTOM = zshCustom;
     };
+
+    home.sessionPath =
+      if isDarwin then
+        [
+          "$(brew --prefix)/opt/coreutils/libexec/gnubin"
+          "$(brew --prefix)/opt/python@3.11/libexec/bin"
+        ]
+      else
+        [];
 
     programs.neovim = {
       enable = true;
@@ -144,7 +162,7 @@ in
 
     programs.kitty = {
       enable = true;
-      package = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (pkgs.callPackage ./kitty.nix {});
+      package = lib.mkIf isDarwin (pkgs.callPackage ./kitty.nix {});
       shellIntegration.enableZshIntegration = true;
       theme = "Dracula";
       font = {
@@ -196,6 +214,11 @@ in
 
     programs.git.enable = true;
 
+    targets.genericLinux.enable = isLinux;
+
+    xdg.enable = false;
+    
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
+
   }
