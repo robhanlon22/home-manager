@@ -170,7 +170,7 @@ in
         lastAppsFile = "${config.xdg.stateHome}/nix/linked-apps.txt";
         lastApps = if builtins.pathExists lastAppsFile then
                      builtins.readFile lastAppsFile
-                   else 
+                   else
                      "";
         appsPath = "${homeDirectory}/Applications/Nix";
       in
