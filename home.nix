@@ -1,19 +1,18 @@
 { config, pkgs, lib, ... }:
 
 let
-  username = builtins.getEnv "USER";
-  homeDirectory = builtins.getEnv "HOME";
   hostPlatform = pkgs.stdenv.hostPlatform;
   isDarwin = hostPlatform.isDarwin;
   isLinux = hostPlatform.isLinux;
   zshCustom = ".oh-my-zsh/custom";
   nixGLWrap = import ./nixGLWrap.nix { inherit pkgs config; };
+  aliasApplications = import ./aliasApplications.nix { inherit pkgs config lib; };
 in
   {
     # Home Manager needs a bit of information about you and the paths it should
     # manage.
-    home.username = username;
-    home.homeDirectory = homeDirectory;
+    home.username = builtins.getEnv "USER";
+    home.homeDirectory = builtins.getEnv "HOME";
 
     # This value determines the Home Manager release that your configuration is
     # compatible with. This helps avoid breakage when a new Home Manager release
@@ -45,14 +44,17 @@ in
       # '')
       pkgs.curlFull
       pkgs.fd
+      pkgs.jq
 
       # LSP
       pkgs.lua-language-server
       pkgs.nil
     ] ++ (if isLinux then
             [
-              (pkgs.writeShellScriptBin "desktop.sh" (builtins.readFile bin/desktop.sh))
-              (pkgs.writeShellScriptBin "shadow.sh" (builtins.readFile bin/shadow.sh))
+              pkgs.wl-clipboard
+              pkgs.wl-clipboard-x11
+              (pkgs.writeScriptBin "desktop.sh" (builtins.readFile bin/desktop.sh))
+              (pkgs.writeScriptBin "shadow.sh" (builtins.readFile bin/shadow.sh))
             ]
           else 
             []);
@@ -166,6 +168,9 @@ in
       package = nixGLWrap (pkgs.callPackage ./packages/kitty/default.nix {});
       shellIntegration.enableZshIntegration = true;
       theme = "Dracula";
+      settings = {
+        shell = "${pkgs.zsh}/bin/zsh --interactive --login";
+      };
       font = {
         name = "CaskaydiaCove Nerd Font Mono";
         size = 14.0;
@@ -177,49 +182,13 @@ in
       defaultCommand = "fd --type file --hidden --no-ignore --exclude .git";
     };
 
-    home.activation.aliasApplications = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
-      let
-        flakePkg = uri:
-          (builtins.getFlake uri).packages.${builtins.currentSystem}.default;
-        apps = pkgs.buildEnv {
-          name = "home-manager-applications";
-          paths = config.home.packages;
-          pathsToLink = "/Applications";
-        };
-        lastAppsFile = "${config.xdg.stateHome}/nix/linked-apps.txt";
-        lastApps = if builtins.pathExists lastAppsFile then
-                     builtins.readFile lastAppsFile
-                   else
-                     "";
-        appsPath = "${homeDirectory}/Applications/Nix";
-      in
-        lib.hm.dag.entryAfter ["writeBoundary"] ''
-          next_apps=$(readlink -f "${apps}/Applications/"* | sort)
-
-          if [ "${lastApps}" = "$next_apps" ]; then
-            exit
-          fi
-
-          echo "Apps have changed. Updating macOS aliases..."
-
-          $DRY_RUN_CMD mkdir -p "${appsPath}"
-
-          $DRY_RUN_CMD "${pkgs.fd}/bin/fd" \
-            -t l -d 1 . "${apps}/Applications" \
-            -x $DRY_RUN_CMD "${flakePkg "github:reckenrode/mkAlias"}/bin/mkalias" \
-            -L {} "${appsPath}/{/}"
-
-          [ -z "$DRY_RUN_CMD" ] && echo "$next_apps" > "${lastAppsFile}"
-        ''
-    );
+    home.activation.aliasApplications = aliasApplications; 
 
     programs.git.enable = true;
+    programs.bash.enable = true;
 
     targets.genericLinux.enable = isLinux;
-
-    xdg.enable = false;
     
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
-
   }
