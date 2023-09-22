@@ -5,11 +5,10 @@ if stdenv.hostPlatform.isLinux then
 else
   let
     kittyApp = "kitty.app";
-    version = "0.30.0";
   in
-    pkgs.kitty.overrideAttrs (old: {
-      name = "darwin-kitty";
-      version = version;
+    stdenv.mkDerivation rec {
+      pname = "dmg-kitty";
+      version = "0.30.0";
 
       src = fetchurl {
         url = "https://github.com/kovidgoyal/kitty/releases/download/v${version}/kitty-0.30.0.dmg";
@@ -66,4 +65,4 @@ else
 
         runHook postInstall
       '';
-    })
+    }

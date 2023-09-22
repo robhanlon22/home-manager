@@ -2,8 +2,6 @@
 
 set -euxfo pipefail
 
-echo "hi"
-
 # Remove the performance overlay, it meddles with some tasks
 unset LD_PRELOAD
 
