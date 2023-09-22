@@ -34,6 +34,7 @@
       home.packages = [
         pkgs.wl-clipboard
         pkgs.wl-clipboard-x11
+        pkgs.gcc
         (pkgs.writeScriptBin "desktop.sh" (builtins.readFile ../bin/desktop.sh))
         (pkgs.writeScriptBin "shadow.sh" (builtins.readFile ../bin/shadow.sh))
       ];
