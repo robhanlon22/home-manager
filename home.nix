@@ -1,14 +1,11 @@
 { config, pkgs, lib, ... }:
 
 let
-  hostPlatform = pkgs.stdenv.hostPlatform;
-  isDarwin = hostPlatform.isDarwin;
-  isLinux = hostPlatform.isLinux;
   zshCustom = ".oh-my-zsh/custom";
-  nixGLWrap = import ./nixGLWrap.nix { inherit pkgs config; };
-  aliasApplications = import ./aliasApplications.nix { inherit pkgs config lib; };
 in
   {
+    imports = [./modules/darwin.nix ./modules/linux.nix];
+   
     # Home Manager needs a bit of information about you and the paths it should
     # manage.
     home.username = builtins.getEnv "USER";
@@ -43,21 +40,14 @@ in
       #   echo "Hello, ${config.home.username}!"
       # '')
       pkgs.curlFull
+      pkgs.python3Full
       pkgs.fd
       pkgs.jq
 
       # LSP
       pkgs.lua-language-server
       pkgs.nil
-    ] ++ (if isLinux then
-            [
-              pkgs.wl-clipboard
-              pkgs.wl-clipboard-x11
-              (pkgs.writeScriptBin "desktop.sh" (builtins.readFile bin/desktop.sh))
-              (pkgs.writeScriptBin "shadow.sh" (builtins.readFile bin/shadow.sh))
-            ]
-          else 
-            []);
+    ];
 
     # Home Manager is pretty good at managing dotfiles. The primary way to manage
     # plain files is through 'home.file'.
@@ -95,15 +85,6 @@ in
     home.sessionVariables = {
       ZSH_CUSTOM = "$HOME/${zshCustom}";
     };
-
-    home.sessionPath =
-      if isDarwin then
-        [
-          "/usr/local/opt/coreutils/libexec/gnubin"
-          "/usr/local/opt/python@3.11/libexec/bin"
-        ]
-      else
-        [];
 
     programs.neovim = {
       enable = true;
@@ -165,7 +146,6 @@ in
 
     programs.kitty = {
       enable = true;
-      package = nixGLWrap (pkgs.callPackage ./packages/kitty/default.nix {});
       shellIntegration.enableZshIntegration = true;
       theme = "Dracula";
       settings = {
@@ -182,13 +162,9 @@ in
       defaultCommand = "fd --type file --hidden --no-ignore --exclude .git";
     };
 
-    home.activation.aliasApplications = aliasApplications; 
-
     programs.git.enable = true;
     programs.bash.enable = true;
 
-    targets.genericLinux.enable = isLinux;
-    
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
   }
