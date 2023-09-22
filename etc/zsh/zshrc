@@ -1,0 +1,10 @@
+. ~/.nix-profile/etc/profile.d/hm-session-vars.sh
+. ~/.p10k.zsh
+
+BREW_PREFIX="$(brew --prefix)"
+
+path=(
+  "$BREW_PREFIX/opt/coreutils/libexec/gnubin"
+  "$BREW_PREFIX/opt/python@3.11/libexec/bin"
+  "${path[@]}"
+)
