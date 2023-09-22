@@ -1,8 +1,8 @@
 { config, pkgs, lib, ... }:
 
 let
-  username = "rob";
-  homeDirectory = "/Users/${username}";
+  username = builtins.getEnv "USER";
+  homeDirectory = builtins.getEnv "HOME";
 in
   {
     # Home Manager needs a bit of information about you and the paths it should
