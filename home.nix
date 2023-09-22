@@ -7,6 +7,7 @@ let
   isDarwin = hostPlatform.isDarwin;
   isLinux = hostPlatform.isLinux;
   zshCustom = ".oh-my-zsh/custom";
+  nixGLWrap = import ./nixGLWrap.nix { inherit pkgs config; };
 in
   {
     # Home Manager needs a bit of information about you and the paths it should
@@ -90,7 +91,7 @@ in
     #
     # if you don't want to manage your shell through Home Manager.
     home.sessionVariables = {
-      ZSH_CUSTOM = zshCustom;
+      ZSH_CUSTOM = "$HOME/${zshCustom}";
     };
 
     home.sessionPath =
@@ -162,7 +163,7 @@ in
 
     programs.kitty = {
       enable = true;
-      package = lib.mkIf isDarwin (pkgs.callPackage ./kitty.nix {});
+      package = nixGLWrap (pkgs.callPackage ./packages/kitty/default.nix {});
       shellIntegration.enableZshIntegration = true;
       theme = "Dracula";
       font = {
