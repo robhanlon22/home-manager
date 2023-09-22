@@ -12,8 +12,8 @@ mkdir -p "$app" "$bin"
 ln -s "$macOS"/kitten "$bin"
 
 cat > "$shim" <<-EOF
-#!/bin/sh
-open -a "$app" --args -1 "\$@"
+  #!/bin/sh
+  open -a "$app" --args -1 "\$@"
 EOF
 
 chmod +x "$shim"
