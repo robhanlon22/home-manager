@@ -99,8 +99,8 @@ in
     home.sessionPath =
       if isDarwin then
         [
-          "$(brew --prefix)/opt/coreutils/libexec/gnubin"
-          "$(brew --prefix)/opt/python@3.11/libexec/bin"
+          "/usr/local/opt/coreutils/libexec/gnubin"
+          "/usr/local/opt/python@3.11/libexec/bin"
         ]
       else
         [];
