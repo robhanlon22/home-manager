@@ -3,7 +3,7 @@
 {
   config = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     let
-      nixGL = import <nixgl> {};
+      nixGL = import <nixgl> { };
       nixGLWrap = pkg:
         pkg.overrideAttrs (old: {
           name = "nixGL-${pkg.name}";
@@ -30,17 +30,17 @@
           '';
         });
     in
-      {
-        home.packages = [
-          pkgs.wl-clipboard
-          pkgs.wl-clipboard-x11
-          (pkgs.writeScriptBin "desktop.sh" (builtins.readFile ../bin/desktop.sh))
-          (pkgs.writeScriptBin "shadow.sh" (builtins.readFile ../bin/shadow.sh))
-        ];
+    {
+      home.packages = [
+        pkgs.wl-clipboard
+        pkgs.wl-clipboard-x11
+        (pkgs.writeScriptBin "desktop.sh" (builtins.readFile ../bin/desktop.sh))
+        (pkgs.writeScriptBin "shadow.sh" (builtins.readFile ../bin/shadow.sh))
+      ];
 
-        targets.genericLinux.enable = true;
-        
-        programs.kitty.package = nixGLWrap pkgs.kitty;
-      }
+      targets.genericLinux.enable = true;
+
+      programs.kitty.package = nixGLWrap pkgs.kitty;
+    }
   );
 }

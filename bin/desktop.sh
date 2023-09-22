@@ -40,23 +40,23 @@ ARGS=('--width' "$WIDTH" '--height' "$HEIGHT")
 #  ARGS+=('--scale' '2')
 #fi
 
-## Shadow kwin_wayland_wrapper so that we can pass args to kwin wrapper 
+## Shadow kwin_wayland_wrapper so that we can pass args to kwin wrapper
 ## whilst being launched by plasma-session
 mkdir -p "$NESTED_PLASMA_DIR"
 
-cat <<EOF > "$KWIN_WAYLAND_WRAPPER"
+cat <<EOF >"$KWIN_WAYLAND_WRAPPER"
 #!/bin/sh
 /usr/bin/kwin_wayland_wrapper ${ARGS[@]} --no-lockscreen "\$@" $@
 EOF
 
 chmod a+x "$KWIN_WAYLAND_WRAPPER"
 
-export PATH="$NESTED_PLASMA_DIR:$PATH" 
+export PATH="$NESTED_PLASMA_DIR:$PATH"
 
 function set-systemd-boot() {
   kwriteconfig5 --file startkderc --group General --key systemdBoot "$1"
 }
- 
+
 set-systemd-boot "false"
 
 export PAM_KWALLET5_LOGIN="$XDG_RUNTIME_DIR/kwallet5.socket"
