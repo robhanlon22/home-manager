@@ -134,8 +134,6 @@ in
 
   programs.git.enable = true;
 
-  programs.librewolf.enable = true;
-
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }

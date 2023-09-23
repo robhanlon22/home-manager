@@ -2,7 +2,9 @@
 
 set -euxfo pipefail
 
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+if ! /nix/nix-installer self-test; then
+  curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+fi
 
 nix-channel \
   --add https://github.com/NixOS/nixpkgs/archive/master.tar.gz nixpkgs \

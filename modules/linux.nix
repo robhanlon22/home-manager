@@ -53,6 +53,8 @@
 
       programs.bash.enable = true;
 
+      programs.librewolf.enable = true;
+
       xdg.mime.enable = true;
     }
   );
