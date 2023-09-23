@@ -71,19 +71,19 @@
         appsPath = "${config.home.homeDirectory}/Applications/Nix";
       in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        next_apps=$(readlink -f "${apps}/Applications/"* | sort)
+        next_apps=$(readlink -f '${apps}/Applications/'* | sort)
 
         if [ '${lastApps}' != "$next_apps" ]; then
           echo "Apps have changed. Updating macOS aliases..."
 
-          $DRY_RUN_CMD mkdir -p "${appsPath}"
+          $DRY_RUN_CMD mkdir -p '${appsPath}'
 
           $DRY_RUN_CMD "${pkgs.fd}/bin/fd" \
-            -t l -d 1 . "${apps}/Applications" \
-            -x $DRY_RUN_CMD "${flakePkg "github:reckenrode/mkAlias"}/bin/mkalias" \
-            -L {} "${appsPath}/{/}"
+            -t l -d 1 . '${apps}/Applications' \
+            -x $DRY_RUN_CMD '${flakePkg "github:reckenrode/mkAlias"}/bin/mkalias' \
+            -L {} '${appsPath}'/{/}
 
-          [ -z "$DRY_RUN_CMD" ] && echo "$next_apps" > "${lastAppsFile}"
+          [ -z "$DRY_RUN_CMD" ] && echo "$next_apps" > '${lastAppsFile}'
         fi
       '';
   };
