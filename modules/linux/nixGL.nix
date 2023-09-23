@@ -1,7 +1,7 @@
 { pkgs }:
 
-
 pkg:
+
 let
   nixGL = import <nixgl> { };
   bins = "${pkg}/bin";

@@ -12,8 +12,7 @@ let
 in
 fixApps
   (nixGL pkgs.kitty)
-  (
-    pkgs.buildEnv {
-      name = "fixed-icons-${pkgs.kitty.name}";
-      paths = fixedKittyIcons;
-    })
+  (pkgs.buildEnv {
+    name = "fixed-icons-${pkgs.kitty.name}";
+    paths = fixedKittyIcons;
+  })
