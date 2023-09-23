@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 
 let
-  fixApps = import ./linux/fixApps.nix { inherit pkgs; };
+  apps = import ./linux/apps.nix { inherit pkgs; };
 in
 {
   config = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
@@ -20,7 +20,7 @@ in
 
       programs.librewolf = {
         enable = true;
-        package = fixApps pkgs.librewolf pkgs.librewolf;
+        package = apps.fixExecDir pkgs.librewolf pkgs.librewolf;
       };
 
       xdg.mime.enable = true;
