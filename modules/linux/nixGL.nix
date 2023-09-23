@@ -9,8 +9,8 @@ in
 pkgs.buildEnv {
   name = "nixGL-${pkg.name}";
   paths = map
-    (bin: pkgs.writeShellScriptBin "nixGL-bin-${bin}" ''
-      exec -a "$0" ${nixGL.auto.nixGLDefault}/bin/nixGL ${bins}/${bin} "$@"
+    (bin: pkgs.writeShellScriptBin "nixGL-${pkg.name}-bin-${bin}" ''
+      exec -a "$0" "${nixGL.auto.nixGLDefault}/bin/nixGL" "${bins}/${bin}" "$@"
     '')
     (builtins.attrNames (builtins.readDir bins));
 }
