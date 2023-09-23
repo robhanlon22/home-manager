@@ -4,7 +4,7 @@
 pkg:
 let
   nixGL = import <nixgl> { };
-  bins = builtins.trace "${pkg}/bin" "${pkg}/bin";
+  bins = "${pkg}/bin";
 in
 pkgs.buildEnv {
   name = "nixGL-${pkg.name}";

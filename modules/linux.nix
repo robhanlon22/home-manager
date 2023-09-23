@@ -24,6 +24,11 @@ in
       };
 
       xdg.mime.enable = true;
+
+      home.activation.refreshMenu =
+        lib.hm.dag.entryAfter
+          [ "writeBoundary" ]
+          "/usr/bin/xdg-desktop-menu forceupdate";
     }
   );
 }
