@@ -121,6 +121,7 @@ in
     theme = "Dracula";
     settings = {
       shell = "${pkgs.zsh}/bin/zsh --interactive --login";
+      tab_bar_style = "powerline";
     };
     font = {
       name = "CaskaydiaCove Nerd Font Mono";
