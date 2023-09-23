@@ -6,10 +6,17 @@ let
     builtins.pathExists "/etc/steamos-release";
 in
 {
-  config = lib.mkIf isSteamOS {
-    home.packages = [
-      (pkgs.writeScriptBin "desktop.sh" (builtins.readFile ../bin/steamos/desktop.sh))
-      (pkgs.writeScriptBin "shadow.sh" (builtins.readFile ../bin/steamos/shadow.sh))
-    ];
-  };
+  config = lib.mkIf isSteamOS (
+    let
+      bins = ../bin/steamos;
+    in
+    {
+      home.packages =
+        map
+          (bin:
+            pkgs.writeScriptBin "${bin}" (builtins.readFile "${bins}/${bin}")
+          )
+          (builtins.attrNames (builtins.readDir bins));
+    }
+  );
 }

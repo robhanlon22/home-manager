@@ -7,7 +7,6 @@
       nixGLWrap = pkg:
         let
           bin = "${pkg}/bin";
-          executables = builtins.attrNames (builtins.readDir bin);
         in
         pkgs.buildEnv {
           name = "nixGL-${pkg.name}";
@@ -15,29 +14,26 @@
             (name: pkgs.writeShellScriptBin name ''
               exec -a "$0" ${nixGL.auto.nixGLDefault}/bin/nixGL ${bin}/${name} "$@"
             '')
-            executables;
+            (builtins.attrNames (builtins.readDir bin));
         };
+
+      nixGLKitty = nixGLWrap pkgs.kitty;
+      appsDir = "share/applications";
+      kittyAppsDir = "${pkgs.kitty}/${appsDir}";
+      fixedKittyApps = map
+        (name: pkgs.runCommand "fixed-${name}" { } ''
+          set -eo pipefail
+          appsDir="$out/${appsDir}"
+          mkdir -p "$appsDir"
+          cat "${kittyAppsDir}/${name}" |\
+            sed "s|Icon=kitty|Icon=${pkgs.kitty}/share/icons/hicolor/256x256/apps/kitty.png|g" |\
+            sed "s|Exec=kitty|Exec=${nixGLKitty}/bin/kitty|g" > "$appsDir/${name}"
+        '')
+        (builtins.attrNames (builtins.readDir kittyAppsDir));
       kittyPkg =
-        let
-          wrapped = nixGLWrap pkgs.kitty;
-          fixedApps = pkgs.runCommand "fixed-kitty" { } ''
-            set -eo pipefail
-
-            mkdir -p "$out/share/applications"
-
-            shopt -s nullglob
-            for file in "${pkgs.kitty}"/share/applications/*; do
-              app="$out/share/applications/$(basename "$file")"
-              cp "$file" "$app"
-              sed -i "s|Icon=kitty|Icon=${pkgs.kitty}/share/icons/hicolor/256x256/apps/kitty.png|g" "$app"
-              sed -i "s|Exec=kitty|Exec=${wrapped}/bin/kitty|g" "$app"
-            done
-            shopt -u nullglob
-          '';
-        in
         pkgs.buildEnv {
           name = "final-kitty";
-          paths = [ wrapped fixedApps ];
+          paths = [ nixGLKitty ] ++ fixedKittyApps;
         };
     in
     {
