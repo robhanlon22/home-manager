@@ -4,22 +4,27 @@ let
   nixGL = import ./nixGL.nix { inherit pkgs; };
   nixGLKitty = nixGL pkgs.kitty;
 
+  fixApps = import ./fixApps.nix { inherit pkgs; };
+
   xdgApps = "share/applications";
   kittyApps = "${pkgs.kitty}/${xdgApps}";
 
-  fixedKittyApps = map
-    (desktop: pkgs.runCommand "fixed-${pkgs.kitty.name}-desktop-${desktop}" { } ''
-      set -eo pipefail
-      xdgApps="$out/${xdgApps}"
-      mkdir -p "$xdgApps"
+  fixedKittyIcons = map
+    (app:
+      (pkgs.runCommand "fixed-icons-${pkgs.kitty.name}-app-${app}" { } ''
+        set -eo pipefail
+        xdgApps="$out/${xdgApps}"
+        mkdir -p "$xdgApps"
 
-      cat "${kittyApps}/${desktop}" |\
-        sed "s|Icon=kitty|Icon=${pkgs.kitty}/share/icons/hicolor/256x256/apps/kitty.png|g" |\
-        sed "s|Exec=kitty|Exec=${nixGLKitty}/bin/kitty|g" > "$xdgApps/${desktop}"
-    '')
+        cat "${kittyApps}/${app}" |\
+          sed "s|Icon=kitty|Icon=${pkgs.kitty}/share/icons/hicolor/256x256/apps/kitty.png|g" > "$xdgApps/${app}"
+      ''))
     (builtins.attrNames (builtins.readDir kittyApps));
 in
-pkgs.buildEnv {
-  name = "fixed-${pkgs.kitty.name}";
-  paths = [ nixGLKitty ] ++ fixedKittyApps;
-}
+fixApps
+  nixGLKitty
+  (
+    pkgs.buildEnv {
+      name = "fixed-icons-${pkgs.kitty.name}";
+      paths = fixedKittyIcons;
+    })
