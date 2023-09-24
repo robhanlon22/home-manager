@@ -28,6 +28,7 @@ in
     pkgs.curlFull
     pkgs.fd
     pkgs.go
+    pkgs.gh
     pkgs.jq
     pkgs.wormhole-william
     pkgs.pre-commit
