@@ -85,8 +85,9 @@ in
     shellAliases = {
       ls = "ls --color";
       hm = "home-manager";
-      hms = "home-manager switch";
-      hmb = "home-manager build";
+      hms = "hm switch";
+      hmb = "hm build";
+      wormhole = "wormhole-william";
     };
     oh-my-zsh = {
       enable = true;
