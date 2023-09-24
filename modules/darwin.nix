@@ -5,6 +5,10 @@
     programs.kitty.package =
       let
         app = "kitty.app";
+        appPath = "$out/Applications/${app}";
+        contents = "${appPath}/Contents";
+        macOS = "${contents}/MacOS";
+        resources = "${contents}/Resources";
       in
       pkgs.stdenv.mkDerivation rec {
         pname = "dmg-kitty";
@@ -19,6 +23,8 @@
         dontConfigure = true;
         dontBuild = true;
         dontFixup = true;
+
+        nativeBuildInputs = [ pkgs.installShellFiles ];
 
         # kitty.dmg is not HFS formatted, default unpackPhase fails
         # https://discourse.nixos.org/t/help-with-error-only-hfs-file-systems-are-supported-on-ventura
@@ -40,12 +46,35 @@
           (cd "$mnt"; /usr/bin/ditto "${app}" "$dest/${app}")
         '';
 
+        outputs = [ "out" "terminfo" "shell_integration" "kitten" ];
+
         sourceRoot = app;
 
         installPhase = ''
           runHook preInstall
 
-          /usr/bin/ditto "../${app}" "$out/Applications/${app}"
+          /usr/bin/ditto "../${app}" "${appPath}"
+
+          mkdir -p "$out/bin" "$kitten/bin"
+
+          ln -s "${macOS}/kitty" "$out/bin/kitty"
+          ln -s "${macOS}/kitten" "$out/bin/kitten"
+          cp "${macOS}/kitten" "$kitten/bin/kitten"
+
+          installManPage "${resources}/man/man1/kitty.1"
+
+          installShellCompletion --cmd kitty \
+            --bash <("$out/bin/kitty" +complete setup bash) \
+            --fish <("$out/bin/kitty" +complete setup fish2) \
+            --zsh  <("$out/bin/kitty" +complete setup zsh)
+
+          mkdir -p $terminfo/share
+          mv "${resources}/terminfo" $terminfo/share/terminfo
+
+          mkdir -p $out/nix-support
+          echo "$terminfo" >> "$out/nix-support/propagated-user-env-packages"
+
+          cp -r "${resources}/kitty/shell-integration" "$shell_integration"
 
           runHook postInstall
         '';
