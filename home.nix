@@ -29,7 +29,7 @@ in
     pkgs.fd
     pkgs.go
     pkgs.jq
-    pkgs.magic-wormhole
+    pkgs.wormhole-william
     pkgs.pre-commit
     pkgs.python3Full
     pkgs.rustc
