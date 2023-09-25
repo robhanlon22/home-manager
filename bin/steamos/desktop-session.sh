@@ -50,7 +50,11 @@ export PATH="$NESTED_PLASMA_DIR:$PATH"
 export PAM_KWALLET5_LOGIN="$XDG_RUNTIME_DIR/kwallet5.socket"
 
 function cleanup() {
+  set +e
+  trap - EXIT
+  pkill -P "$$"
   rm -r "$NESTED_PLASMA_DIR"
+  kill "$$"
 }
 
 trap cleanup EXIT
