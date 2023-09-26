@@ -50,17 +50,17 @@ export PATH="$NESTED_PLASMA_DIR:$PATH"
 export PAM_KWALLET5_LOGIN="$XDG_RUNTIME_DIR/kwallet5.socket"
 
 function cleanup() {
-  set +e
   trap - EXIT
-  pkill -P "$$"
+  pkill -P "$$" || true
   rm -r "$NESTED_PLASMA_DIR"
-  kill "$$"
+  kill "$$" || true
 }
 
 trap cleanup EXIT
 
-if ! /usr/lib/pam_kwallet_init; then
-  kwallet-query --list-entries kdewallet || true
-fi
+(/usr/lib/pam_kwallet_init || true) &
+(kwallet-query --list-entries kdewallet || true) &
+
+disown
 
 startplasma-wayland

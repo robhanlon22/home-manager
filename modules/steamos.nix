@@ -18,6 +18,16 @@ in
           )
           (builtins.attrNames (builtins.readDir bins));
 
+      home.file = {
+        ".steam/root/compatibilitytools.d/GE-Proton8-16".source = builtins.fetchTarball {
+          url = "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton8-16/GE-Proton8-16.tar.gz";
+        };
+      };
+
+      home.sessionVariables = {
+        STARDEW_VALLEY_MODS = "~/.steam/steam/steamapps/common/Stardew Valley/Mods";
+      };
+
       programs.zsh.shellAliases = {
         to-game-mode = "exec qdbus org.kde.Shutdown /Shutdown org.kde.Shutdown.logout";
         tgm = "to-game-mode";
