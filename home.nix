@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   imports = [ ./modules/darwin.nix ./modules/linux.nix ./modules/steamos.nix ];
@@ -27,6 +27,7 @@
     pkgs.gh
     pkgs.jq
     pkgs.lame
+    pkgs.libyaml
     pkgs.pre-commit
     pkgs.wormhole-william
     pkgs.zsh-powerlevel10k
@@ -41,9 +42,6 @@
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
-    withRuby = true;
-    withPython3 = true;
-    withNodeJs = true;
     plugins = with pkgs.vimPlugins; [
       dracula-nvim
       fzf-vim
@@ -85,19 +83,13 @@
     enableZshIntegration = true;
   };
 
-  programs.rbenv = {
+  programs.rtx = {
     enable = true;
-    plugins = [
-      {
-        name = "ruby-build";
-        src = pkgs.fetchFromGitHub {
-          owner = "rbenv";
-          repo = "ruby-build";
-          rev = "v20230919";
-          hash = "sha256-w9RwOqCFn9845MR01KwOz/FELiEYUcftBPbGs3Z/jTc=";
-        };
-      }
-    ];
+    settings = {
+      tools = {
+        ruby = "latest";
+      };
+    };
   };
 
   programs.kitty = {

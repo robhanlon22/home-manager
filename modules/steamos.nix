@@ -32,6 +32,14 @@ in
         to-game-mode = "exec qdbus org.kde.Shutdown /Shutdown org.kde.Shutdown.logout";
         tgm = "to-game-mode";
       };
+
+
+      xdg.mime.enable = true;
+
+      home.activation.refreshMenu =
+        lib.hm.dag.entryAfter
+          [ "writeBoundary" ]
+          "/usr/bin/xdg-desktop-menu forceupdate";
     }
   );
 }
