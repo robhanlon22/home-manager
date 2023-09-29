@@ -1,8 +1,5 @@
 { pkgs, ... }:
 
-let
-  zshCustom = ".oh-my-zsh/custom";
-in
 {
   imports = [ ./modules/darwin.nix ./modules/linux.nix ./modules/steamos.nix ];
 
@@ -25,35 +22,19 @@ in
   home.packages = [
     (pkgs.nerdfonts.override { fonts = [ "CascadiaCode" ]; })
 
-    pkgs.curlFull
+    pkgs.curl
     pkgs.fd
-    pkgs.go
     pkgs.gh
     pkgs.jq
-    pkgs.wormhole-william
+    pkgs.lame
     pkgs.pre-commit
-    pkgs.python3Full
-    pkgs.rustc
+    pkgs.wormhole-william
+    pkgs.zsh-powerlevel10k
 
     # LSP
     pkgs.lua-language-server
     pkgs.nil
   ];
-
-  home.file = {
-    "${zshCustom}/themes/powerlevel10k".source = pkgs.fetchFromGitHub {
-      owner = "romkatv";
-      repo = "powerlevel10k";
-      rev = "refs/tags/v1.19.0";
-      sha256 = "+hzjSbbrXr0w1rGHm6m2oZ6pfmD6UUDBfPd7uMg5l5c=";
-    };
-
-    ".p10k.zsh".source = etc/zsh/p10k.zsh;
-  };
-
-  home.sessionVariables = {
-    ZSH_CUSTOM = "$HOME/${zshCustom}";
-  };
 
   programs.neovim = {
     enable = true;
@@ -82,7 +63,10 @@ in
 
   programs.zsh = {
     enable = true;
-    initExtra = builtins.readFile etc/zsh/zshrc;
+    initExtra = ''
+      source '${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme'
+      ${builtins.readFile ./etc/zsh/p10k.zsh}
+    '';
     shellAliases = {
       ls = "ls --color";
       hm = "home-manager";
@@ -92,8 +76,7 @@ in
     };
     oh-my-zsh = {
       enable = true;
-      plugins = [ "git" "ruby" "rust" "python" ];
-      theme = "powerlevel10k/powerlevel10k";
+      plugins = [ "git" ];
     };
   };
 
