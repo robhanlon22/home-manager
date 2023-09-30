@@ -1,20 +1,22 @@
 { pkgs, ... }:
 
 let
+  thePname = "ShadowPC";
+  theVersion = "prod";
   appimage = pkgs.fetchurl {
-    url = "https://update.shadow.tech/launcher/prod/linux/ubuntu_18.04/ShadowPC.AppImage";
+    url = "https://update.shadow.tech/launcher/${theVersion}/linux/ubuntu_18.04/${thePname}.AppImage";
     sha256 = "r4gDOV6O/PJVuQeN0zzmzbZF7Tp0D6UDInZg9LLjx7A=";
     name = "ShadowPC.AppImage";
   };
   extracted = pkgs.appimageTools.extract {
     src = appimage;
-    pname = "shadow-pc";
-    version = "prod";
+    pname = thePname;
+    version = theVersion;
   };
 in
-pkgs.stdenv.mkDerivation rec {
-  pname = "shadow-pc";
-  version = "prod";
+pkgs.stdenv.mkDerivation {
+  pname = thePname;
+  version = theVersion;
 
   buildInputs = [ pkgs.makeWrapper pkgs.copyDesktopItems ];
 
@@ -28,9 +30,9 @@ pkgs.stdenv.mkDerivation rec {
     runHook preInstall
     mkdir -p $out/bin
 
-    cp ${appimage} $out/bin/shadow-pc
-    chmod +x $out/bin/shadow-pc
-    wrapProgram $out/bin/shadow-pc --add-flags '--no-sandbox'
+    cp ${appimage} $out/bin/${thePname}
+    chmod +x $out/bin/${thePname}
+    wrapProgram $out/bin/${thePname} --add-flags '--no-sandbox'
 
     cp -r --no-preserve=mode ${extracted}/usr/share $out/share
 
@@ -39,9 +41,9 @@ pkgs.stdenv.mkDerivation rec {
 
   desktopItems = [
     (pkgs.makeDesktopItem {
-      name = "shadow-pc";
+      name = thePname;
       desktopName = "Shadow PC";
-      exec = "shadow-pc %U";
+      exec = "${thePname} %U";
       terminal = false;
       icon = "shadow-launcher";
       startupWMClass = "Shadow PC";

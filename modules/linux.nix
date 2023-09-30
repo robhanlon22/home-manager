@@ -7,7 +7,8 @@ in
   config = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     {
       home.packages = [
-        (pkgs.callPackage linux/shadow-pc.nix { })
+        (pkgs.callPackage linux/ShadowPC.nix { })
+        (pkgs.callPackage linux/SheepShaver.nix { })
         pkgs.wl-clipboard
         pkgs.wl-clipboard-x11
       ];

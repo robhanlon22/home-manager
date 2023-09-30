@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 
 {
   imports = [ ./modules/darwin.nix ./modules/linux.nix ./modules/steamos.nix ];
@@ -93,6 +93,9 @@
     settings = {
       shell = "${pkgs.zsh}/bin/zsh --interactive --login";
       tab_bar_style = "powerline";
+    };
+    keybindings = {
+      "ctrl+shift+;" = "launch --location=hsplit";
     };
     font = {
       name = "CaskaydiaCove Nerd Font Mono";
