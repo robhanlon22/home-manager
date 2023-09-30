@@ -24,11 +24,14 @@
 
     pkgs.curl
     pkgs.fd
+    pkgs.gcc
     pkgs.gh
+    pkgs.gnumake
     pkgs.jq
     pkgs.lame
     pkgs.libyaml
     pkgs.pre-commit
+    pkgs.ruby
     pkgs.wormhole-william
     pkgs.zsh-powerlevel10k
 
@@ -81,15 +84,6 @@
   programs.zoxide = {
     enable = true;
     enableZshIntegration = true;
-  };
-
-  programs.rtx = {
-    enable = true;
-    settings = {
-      tools = {
-        ruby = "latest";
-      };
-    };
   };
 
   programs.kitty = {

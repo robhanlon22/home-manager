@@ -7,9 +7,9 @@ in
   config = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     {
       home.packages = [
+        (pkgs.callPackage linux/shadow-pc.nix { })
         pkgs.wl-clipboard
         pkgs.wl-clipboard-x11
-        pkgs.gcc
       ];
 
       targets.genericLinux.enable = true;
